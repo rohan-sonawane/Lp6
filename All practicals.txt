@@ -1,0 +1,472 @@
+#!/usr/bin/env python
+# coding: utf-8
+												Pracitcal No: 1
+# Tokenizer
+
+# WhitespaceTokenizer, WordPuncTokenizer, TreebankWordTokenizer, TweetTokenizer, MWETokenizer
+
+# In[32]:
+
+
+pip install nltk
+
+
+# In[4]:
+
+
+from nltk.tokenize import WhitespaceTokenizer, WordPunctTokenizer
+
+
+# In[5]:
+
+
+from nltk.tokenize import TreebankWordTokenizer, TweetTokenizer, MWETokenizer
+
+
+# In[7]:
+
+
+text = " Tokenization is a key Task in NLP. It breaks texts into tokens, which can be words, phrases, or symbols. 😊😊👌👌"
+
+
+# Whitespace Tokenizer: tokenize based on white space
+
+# In[9]:
+
+
+whitespace_tokenizer = WhitespaceTokenizer()
+whitespace_tokens = whitespace_tokenizer.tokenize(text)
+print("Whitespace Tokenizer:",whitespace_tokens)
+
+
+# WordPunctTokenizer: Punctuation based tokenizer
+
+# In[10]:
+
+
+punct_tokenizer = WordPunctTokenizer()
+punct_tokens = punct_tokenizer.tokenize(text)
+print("Punctuation based Tokenizer: ",punct_tokens)
+
+
+# TreebankWordTokenizer: 
+
+# In[8]:
+
+
+treebank_tokenizer = TreebankWordTokenizer()
+treebank_tokens = treebank_tokenizer.tokenize(text)
+print("Treebank tokens: ", treebank_tokens)
+
+
+# TweetTokenizer: To tokenize tweets data with emojis
+
+# In[12]:
+
+
+tweet_tokenizer = TweetTokenizer()
+tweet_tokens = tweet_tokenizer.tokenize(text)
+print("Tweet Tokenizer: ", tweet_tokens)
+
+
+# MWETokenizer: Multi-Word Expression Tokenizer
+
+# In[15]:
+
+
+mwe_tokenizer = MWETokenizer()
+mwe_tokenizer.add_mwe(("key","Task"))
+mwe_tokens = mwe_tokenizer.tokenize(text.split())
+print("MWE Tokenizer: ", mwe_tokens)
+
+
+# Stemming
+
+# In[ ]:
+
+
+Porter Stemmer
+
+
+# In[17]:
+
+
+from nltk.stem import PorterStemmer, SnowballStemmer
+
+
+# In[21]:
+
+
+porter_stemmer = PorterStemmer()
+for token in treebank_tokens:
+    porter_stems = [porter_stemmer.stem(token)]
+    print("Porter Stemmer: ", porter_stems)
+
+
+# Snowball Stemmer
+
+# In[24]:
+
+
+snowball_stemmer = SnowballStemmer("english")
+for token in treebank_tokens:
+    snowball_stems = [snowball_stemmer.stem(token)]
+    print("Snowball Stemmer: ", snowball_stems)
+
+
+# Lemmatization
+
+# WordNetLemmatizer
+
+# In[2]:
+
+
+from nltk.stem.wordnet import WordNetLemmatizer
+
+
+# In[3]:
+
+
+import nltk
+nltk.download('wordnet')
+
+
+# In[9]:
+
+
+lemmatizer = WordNetLemmatizer()
+lemmatized_tokens = [lemmatizer.lemmatize(token) for token in treebank_tokens]
+print("Lemmatization:", lemmatized_tokens)
+
+
+
+															# Practical No: 2
+
+# Perform bag-of-words approach (count occurrence,
+# normalized count occurrence), TF-IDF on data. Create
+# embeddings using Word2Vec.
+
+# In[3]:
+
+
+pip install scikit-learn
+
+
+# In[4]:
+
+
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from nltk.tokenize import word_tokenize
+from gensim.models import Word2Vec
+
+
+# In[5]:
+
+
+data = [
+    "This is the first document.",
+    "This document is the second document.",
+    "And this is the third one.",
+    "Is this the first document?"
+]
+
+
+# Bag-of-Words Approach: Count Occurrence
+
+# In[6]:
+
+
+count_vectorizer = CountVectorizer()
+count_matrix = count_vectorizer.fit_transform(data)
+count_feature_names = count_vectorizer.get_feature_names_out()
+count_array = count_matrix.toarray()
+
+
+# In[7]:
+
+
+print("Count Occurrence:")
+print(count_feature_names)
+print(count_array)
+
+
+# Bag-of-Words Approach: Normalized Count Occurrence
+
+# In[8]:
+
+
+normalized_count_array = count_array / count_array.sum(axis=1, keepdims=True)
+print("\nNormalized Count Occurrence:")
+print(normalized_count_array)
+
+
+# TF-IDF : Term Frequency - Inverse Document Frequency
+
+# In[10]:
+
+
+tfidf_vectorizer = TfidfVectorizer()
+tfidf_matrix = tfidf_vectorizer.fit_transform(data)
+tfidf_feature_names = tfidf_vectorizer.get_feature_names_out()
+tfidf_array = tfidf_matrix.toarray()
+
+
+# In[11]:
+
+
+print("\nTF-IDF:")
+print(tfidf_feature_names)
+print(tfidf_array)
+
+
+# Word Embeddings using Word2Vec
+
+# In[13]:
+
+
+tokenized_data = [word_tokenize(sentence.lower()) for sentence in data]
+word2vec_model = Word2Vec(sentences=tokenized_data, vector_size=100, window=5, min_count=1, workers=4)
+word_vectors = [word2vec_model.wv[word] for sentence in tokenized_data for word in sentence]
+
+
+# In[14]:
+
+
+print("\nWord Embeddings using Word2Vec:")
+print(word_vectors)
+
+
+													# Practical No: 3
+
+# Perform text cleaning, perform lemmatization (any
+# method), remove stop words (any method), label encoding.
+# Create representations using TF-IDF. 
+
+# In[1]:
+
+
+import nltk
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.preprocessing import LabelEncoder
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+
+
+# Sample Data
+
+# In[2]:
+
+
+data = {
+    'text': ["This is the first document.",
+             "This document is the second document.",
+             "And this is the third one.",
+             "Is this the first document?"],
+    'label': ['A', 'B', 'C', 'A']
+}
+
+
+# In[3]:
+
+
+df = pd.DataFrame(data)
+
+
+# Text Cleaning, Lemmatization, and Stop Words Removal
+
+# In[4]:
+
+
+lemmatizer = WordNetLemmatizer()
+stop_words = set(stopwords.words('english'))
+
+
+# In[5]:
+
+
+def clean_text(text):
+    tokens = word_tokenize(text.lower())  # Tokenize and convert to lowercase
+    tokens = [token for token in tokens if token.isalnum()]  # Remove non-alphanumeric characters
+    tokens = [lemmatizer.lemmatize(token) for token in tokens]  # Lemmatize
+    tokens = [token for token in tokens if token not in stop_words]  # Remove stop words
+    return ' '.join(tokens)
+
+df['clean_text'] = df['text'].apply(clean_text)
+
+
+# Label Encoding
+
+# In[6]:
+
+
+label_encoder = LabelEncoder()
+df['encoded_label'] = label_encoder.fit_transform(df['label'])
+
+
+# TF-IDF Representation
+
+# In[7]:
+
+
+tfidf_vectorizer = TfidfVectorizer()
+tfidf_matrix = tfidf_vectorizer.fit_transform(df['clean_text'])
+tfidf_df = pd.DataFrame(tfidf_matrix.toarray(), columns=tfidf_vectorizer.get_feature_names_out())
+
+
+# Save Outputs
+
+# In[8]:
+
+
+df[['clean_text', 'label', 'encoded_label']].to_csv('cleaned_data.csv', index=False)
+tfidf_df.to_csv('tfidf_representation.csv', index=False)
+
+print("Outputs saved successfully.")
+
+
+# In[9]:
+
+
+file_path = "cleaned_data.csv"
+df1 = pd.read_csv(file_path)
+
+# Display the first few rows
+print(df1.head())
+
+
+# In[10]:
+
+
+file_path = "tfidf_representation.csv"
+df2 = pd.read_csv(file_path)
+
+# Display the first few rows
+print(df2.head())
+
+
+
+														# Practical NO: 4
+
+# Create a transformer from scratch using the Pytorch library
+
+# In[4]:
+
+
+pip install torch
+
+
+# In[17]:
+
+
+import torch
+import torch.nn as nn
+import math
+
+class PositionalEncoding(nn.Module):
+    def __init__(self, d_model, max_len=5000):
+        super(PositionalEncoding, self).__init__()
+        pe = torch.zeros(max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        pe[:, 0::2] = torch.sin(position * div_term)
+        pe[:, 1::2] = torch.cos(position * div_term)
+        pe = pe.unsqueeze(0)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        return x + self.pe[:, :x.size(1)]
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, d_model, num_heads):
+        super(MultiHeadAttention, self).__init__()
+        assert d_model % num_heads == 0
+        self.d_k = d_model // num_heads
+        self.num_heads = num_heads
+        self.q_linear = nn.Linear(d_model, d_model)
+        self.k_linear = nn.Linear(d_model, d_model)
+        self.v_linear = nn.Linear(d_model, d_model)
+        self.out = nn.Linear(d_model, d_model)
+
+    def forward(self, q, k, v, mask=None):
+        batch_size = q.size(0)
+
+        def transform(x, linear):
+            x = linear(x)
+            x = x.view(batch_size, -1, self.num_heads, self.d_k)
+            return x.transpose(1, 2)
+
+        q = transform(q, self.q_linear)
+        k = transform(k, self.k_linear)
+        v = transform(v, self.v_linear)
+
+        scores = torch.matmul(q, k.transpose(-2, -1)) / math.sqrt(self.d_k)
+
+        if mask is not None:
+            scores = scores.masked_fill(mask == 0, -1e9)
+
+        attn = torch.softmax(scores, dim=-1)
+        output = torch.matmul(attn, v)
+        output = output.transpose(1, 2).contiguous()
+        output = output.view(batch_size, -1, self.num_heads * self.d_k)
+
+        return self.out(output)
+
+class FeedForward(nn.Module):
+    def __init__(self, d_model, d_ff):
+        super(FeedForward, self).__init__()
+        self.linear1 = nn.Linear(d_model, d_ff)
+        self.linear2 = nn.Linear(d_ff, d_model)
+
+    def forward(self, x):
+        return self.linear2(torch.relu(self.linear1(x)))
+
+class TransformerBlock(nn.Module):
+    def __init__(self, d_model, num_heads, d_ff, dropout=0.1):
+        super(TransformerBlock, self).__init__()
+        self.attention = MultiHeadAttention(d_model, num_heads)
+        self.feed_forward = FeedForward(d_model, d_ff)
+        self.norm1 = nn.LayerNorm(d_model)
+        self.norm2 = nn.LayerNorm(d_model)
+        self.dropout = nn.Dropout(dropout)
+
+    def forward(self, x, mask=None):
+        attn_out = self.attention(x, x, x, mask)
+        x = self.norm1(x + self.dropout(attn_out))
+        ff_out = self.feed_forward(x)
+        x = self.norm2(x + self.dropout(ff_out))
+        return x
+
+class TransformerEncoder(nn.Module):
+    def __init__(self, vocab_size, d_model, num_layers, num_heads, d_ff, max_len=512):
+        super(TransformerEncoder, self).__init__()
+        self.embedding = nn.Embedding(vocab_size, d_model)
+        self.positional_encoding = PositionalEncoding(d_model, max_len)
+        self.layers = nn.ModuleList([
+            TransformerBlock(d_model, num_heads, d_ff) for _ in range(num_layers)
+        ])
+        self.dropout = nn.Dropout(0.1)
+
+    def forward(self, src, mask=None):
+        x = self.embedding(src)
+        x = self.positional_encoding(x)
+        x = self.dropout(x)
+        for layer in self.layers:
+            x = layer(x, mask)
+        return x
+
+if __name__ == "__main__":
+    vocab_size = 10000
+    d_model = 512
+    num_layers = 6
+    num_heads = 8
+    d_ff = 2048
+
+    model = TransformerEncoder(vocab_size, d_model, num_layers, num_heads, d_ff)
+    dummy_input = torch.randint(0, vocab_size, (32, 100))  # (batch_size, sequence_length)
+    output = model(dummy_input)
+    print(output.shape)
+
+
+
